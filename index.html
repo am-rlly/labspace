@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f5f7fb">
+  <title>Labspace — Equipment Booking</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#" aria-label="Labspace home">
+        <span class="brand-mark"><span></span><span></span><span></span><span></span></span>
+        <span>labspace<span class="brand-period">.</span></span>
+      </a>
+
+      <div class="workspace-label">WORKSPACE</div>
+      <nav class="main-nav" aria-label="Main navigation">
+        <button class="nav-link active" data-view="overview"><span class="nav-icon">◫</span>Overview</button>
+        <button class="nav-link" data-view="equipment"><span class="nav-icon">▦</span>Equipment<span class="nav-count" id="equipmentNavCount">8</span></button>
+        <button class="nav-link" data-view="bookings"><span class="nav-icon">▤</span>My bookings</button>
+        <button class="nav-link" data-view="requests"><span class="nav-icon">↗</span>Requests<span class="nav-count" id="requestNavCount">0</span></button>
+        <button class="nav-link" data-view="history"><span class="nav-icon">◷</span>Usage history</button>
+      </nav>
+
+      <div class="workspace-label nav-section-label">MANAGE</div>
+      <nav class="main-nav" aria-label="Management navigation">
+        <button class="nav-link" data-view="maintenance"><span class="nav-icon">⚒</span>Maintenance</button>
+        <button class="nav-link admin-only" data-view="admin"><span class="nav-icon">◈</span>Admin dashboard</button>
+      </nav>
+
+      <div class="sidebar-spacer"></div>
+      <div class="help-card">
+        <div class="help-icon">✳</div>
+        <strong>Need a hand?</strong>
+        <p>For access, training, or safety guidance, ask your lab manager.</p>
+      </div>
+      <div class="sidebar-user">
+        <div class="avatar avatar-user">R</div>
+        <div class="user-meta"><strong>Researcher</strong><span>Researcher</span></div>
+        <button class="more-button" id="profileButton" aria-label="Edit local profile">···</button>
+      </div>
+    </aside>
+
+    <main class="main-area">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobileMenu" aria-label="Toggle navigation">☰</button>
+        <div class="breadcrumbs">Science Faculty <span>/</span> <strong id="breadcrumbCurrent">Overview</strong></div>
+        <div class="topbar-actions">
+          <label class="role-switch" title="Local workspace control; not authentication"><input type="checkbox" id="adminMode"><span class="switch-track"></span><span>Local admin</span></label>
+          <div class="notification-wrap">
+            <button class="icon-button notification-button" id="notificationsButton" aria-label="Notifications" aria-expanded="false" aria-controls="notificationPopover">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>
+              <span class="notification-count" id="notificationCount" hidden></span>
+            </button>
+            <section class="notification-popover" id="notificationPopover" aria-label="Notifications" hidden>
+              <div class="notification-heading"><strong>Notifications</strong><span id="notificationSummary"></span></div>
+              <div id="notificationList"></div>
+            </section>
+          </div>
+          <div class="topbar-divider"></div>
+          <button class="profile-trigger" id="profileTrigger" aria-label="Edit local profile">
+            <span class="avatar avatar-top">R</span>
+            <span class="topbar-user"><strong>Researcher</strong><span>Researcher · This browser</span></span>
+          </button>
+        </div>
+      </header>
+
+      <div class="page-content">
+        <section class="view-panel active" id="view-overview">
+          <div class="welcome-row">
+            <div>
+              <div class="eyebrow"><span class="live-dot"></span> YOUR LAB, IN SYNC</div>
+              <h1>Good morning, <span id="welcomeName">Researcher</span> <span class="wave">✳</span></h1>
+              <p class="page-subtitle">Everything you need to make your next discovery.</p>
+            </div>
+            <button class="button button-primary" data-open-booking><span class="button-plus">＋</span> New booking</button>
+          </div>
+
+          <div class="stats-grid">
+            <article class="stat-card">
+              <div class="stat-top"><span>My upcoming bookings</span><span class="stat-icon blue">▤</span></div>
+              <div class="stat-value" id="statUpcoming">0</div>
+              <div class="stat-foot"><span class="stat-foot-dot blue-dot"></span> Scheduled ahead</div>
+            </article>
+            <article class="stat-card">
+              <div class="stat-top"><span>Requests awaiting approval</span><span class="stat-icon amber">◷</span></div>
+              <div class="stat-value" id="statPending">0</div>
+              <div class="stat-foot"><span class="stat-foot-dot amber-dot"></span> Usually reviewed within a day</div>
+            </article>
+            <article class="stat-card">
+              <div class="stat-top"><span>Available right now</span><span class="stat-icon green">✳</span></div>
+              <div class="stat-value"><span id="statAvailable">0</span><small> / <span id="statTotal">0</span> devices</small></div>
+              <div class="stat-foot"><span class="stat-foot-dot green-dot"></span> Ready to reserve</div>
+            </article>
+          </div>
+
+          <div class="content-grid">
+            <section class="surface-panel equipment-panel">
+              <div class="section-heading">
+                <div><h2>Equipment to explore</h2><p>Find the right tools for your research.</p></div>
+                <button class="text-button" data-navigate="equipment">View all <span>→</span></button>
+              </div>
+              <div class="quick-equipment-grid" id="featuredEquipment"></div>
+            </section>
+
+            <section class="surface-panel schedule-panel">
+              <div class="section-heading">
+                <div><h2>Coming up</h2><p>Your next lab sessions.</p></div>
+                <button class="icon-button subtle-button" data-navigate="bookings" aria-label="View all bookings">↗</button>
+              </div>
+              <div id="upcomingList" class="upcoming-list"></div>
+              <button class="schedule-cta" data-open-booking><span>＋</span> Find a time to book</button>
+            </section>
+          </div>
+
+          <section class="surface-panel activity-panel">
+            <div class="section-heading">
+              <div><h2>Recent activity</h2><p>A little history of your lab work.</p></div>
+              <button class="text-button" data-navigate="history">See history <span>→</span></button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>EQUIPMENT</th><th>DATE</th><th>DURATION</th><th>STATUS</th></tr></thead>
+                <tbody id="activityRows"></tbody>
+              </table>
+            </div>
+          </section>
+          <footer class="page-footer"><span>Labspace <b>·</b> Equipment booking made simple</span><span>For lab access, contact your lab manager</span></footer>
+        </section>
+
+        <section class="view-panel" id="view-equipment">
+          <div class="page-heading-row"><div><div class="eyebrow">THE LAB CATALOGUE</div><h1>Equipment</h1><p class="page-subtitle">Explore shared instruments and find your next open slot.</p></div><div class="heading-actions"><button class="button button-quiet admin-only" data-open-equipment><span class="button-plus">＋</span> Add equipment</button><button class="button button-primary" data-open-booking><span class="button-plus">＋</span> New booking</button></div></div>
+          <div class="notice-banner catalogue-notice"><span>ⓘ</span><div><strong>Starter catalogue — confirm the details before use.</strong><p>Equipment descriptions, example room names, training rules, and session limits are editable starting points, not verified details for your institution.</p></div></div>
+          <div class="filter-toolbar">
+            <label class="search-box"><span>⌕</span><input id="equipmentSearch" type="search" placeholder="Search equipment..."></label>
+            <select id="categoryFilter" aria-label="Filter by category"><option value="all">All categories</option></select>
+            <select id="availabilityFilter" aria-label="Filter by availability"><option value="all">Any availability</option><option value="available">Available</option><option value="maintenance">In maintenance</option></select>
+          </div>
+          <div class="equipment-grid" id="equipmentGrid"></div>
+        </section>
+
+        <section class="view-panel" id="view-bookings">
+          <div class="page-heading-row"><div><div class="eyebrow">YOUR SCHEDULE</div><h1>My bookings</h1><p class="page-subtitle">Keep track of your upcoming sessions and requests.</p></div><button class="button button-primary" data-open-booking><span class="button-plus">＋</span> New booking</button></div>
+          <div class="surface-panel full-panel"><div class="section-heading"><div><h2>Upcoming sessions</h2><p>Approved bookings and requests awaiting review.</p></div></div><div id="myBookingsList" class="booking-list"></div></div>
+        </section>
+
+        <section class="view-panel" id="view-requests">
+          <div class="page-heading-row"><div><div class="eyebrow">BOOKING WORKFLOW</div><h1>Booking requests</h1><p class="page-subtitle">Review and manage requests for shared lab resources.</p></div></div>
+          <div class="surface-panel full-panel"><div class="section-heading"><div><h2>All requests</h2><p>Pending requests reserve their time slot while under review.</p></div><span class="request-total" id="requestTotal">0 requests</span></div><div id="requestsList" class="booking-list"></div></div>
+        </section>
+
+        <section class="view-panel" id="view-history">
+          <div class="page-heading-row"><div><div class="eyebrow">YOUR LAB JOURNAL</div><h1>Usage history</h1><p class="page-subtitle">A record of completed equipment sessions.</p></div></div>
+          <div class="surface-panel full-panel"><div class="section-heading"><div><h2>Past sessions</h2><p>Your completed equipment bookings.</p></div></div><div class="table-wrap"><table><thead><tr><th>EQUIPMENT</th><th>DATE</th><th>TIME</th><th>DURATION</th><th>STATUS</th></tr></thead><tbody id="historyRows"></tbody></table></div></div>
+        </section>
+
+        <section class="view-panel" id="view-maintenance">
+          <div class="page-heading-row"><div><div class="eyebrow">KEEP THE LAB RUNNING</div><h1>Maintenance</h1><p class="page-subtitle">Review equipment service windows and scheduled downtime.</p></div><button class="button button-primary admin-only" data-open-maintenance><span class="button-plus">＋</span> Block a time</button></div>
+          <div class="notice-banner"><span>✳</span><div><strong>Maintenance blocks prevent double-booking.</strong><p>Scheduled downtime is visible to everyone and conflicts with existing reservations are prevented.</p></div></div>
+          <div class="surface-panel full-panel"><div class="section-heading"><div><h2>Scheduled maintenance</h2><p>Service windows across the equipment catalogue.</p></div></div><div id="maintenanceList" class="booking-list"></div></div>
+        </section>
+
+        <section class="view-panel" id="view-admin">
+          <div class="page-heading-row"><div><div class="eyebrow">LAB OPERATIONS</div><h1>Admin dashboard</h1><p class="page-subtitle">A clear view of your shared resources and booking activity.</p></div></div>
+          <div class="stats-grid admin-stats">
+            <article class="stat-card"><div class="stat-top"><span>Total equipment</span><span class="stat-icon blue">▦</span></div><div class="stat-value" id="adminEquipment">0</div><div class="stat-foot">Across all lab categories</div></article>
+            <article class="stat-card"><div class="stat-top"><span>Pending requests</span><span class="stat-icon amber">◷</span></div><div class="stat-value" id="adminPending">0</div><div class="stat-foot">Waiting for your review</div></article>
+            <article class="stat-card"><div class="stat-top"><span>Maintenance windows</span><span class="stat-icon rose">⚒</span></div><div class="stat-value" id="adminMaintenance">0</div><div class="stat-foot">Scheduled service blocks</div></article>
+          </div>
+          <div class="notice-banner local-mode-notice"><span>ⓘ</span><div><strong>This workspace is saved in this browser only.</strong><p>It does not sync to other devices. Admin mode is a local workspace control, not a secure sign-in.</p></div></div>
+          <div class="surface-panel full-panel"><div class="section-heading"><div><h2>Needs your attention</h2><p>Pending booking requests that need a decision.</p></div><button class="text-button" data-navigate="requests">All requests <span>→</span></button></div><div id="adminRequestList" class="booking-list"></div></div>
+          <div class="surface-panel data-tools-panel"><div><strong>Workspace data</strong><p>Back up your equipment, bookings, profile, and maintenance to a file, or restore from an earlier backup.</p></div><div class="data-tools-actions"><button class="button button-quiet" id="exportDataButton">↓ Export backup</button><button class="button button-quiet" id="importDataButton">↑ Import backup</button><button class="button button-quiet danger-quiet" id="resetWorkspaceButton">Restore defaults</button><input id="importDataFile" type="file" accept=".json,application/json" hidden></div></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="bookingModal" aria-hidden="true">
+    <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="bookingModalTitle">
+      <div class="modal-heading"><div><div class="eyebrow">RESERVE A RESOURCE</div><h2 id="bookingModalTitle">New booking</h2></div><button class="modal-close" data-close-modal aria-label="Close dialog">×</button></div>
+      <form id="bookingForm">
+        <label class="field-label">Equipment<select name="equipment" id="bookingEquipment" required></select></label>
+        <div class="form-row"><label class="field-label">Date<input name="date" id="bookingDate" type="date" required></label><label class="field-label">Purpose<input name="purpose" type="text" maxlength="100" placeholder="e.g. Protein imaging" required></label></div>
+        <section class="availability-preview" aria-live="polite">
+          <div class="availability-preview-heading"><strong>Availability</strong><span id="availabilityDateLabel">Choose a date</span></div>
+          <div id="availabilitySlots"></div>
+          <div id="availabilitySchedule"></div>
+        </section>
+        <div class="booking-policy" id="bookingPolicy" aria-live="polite"></div>
+        <label class="training-confirmation" id="trainingConfirmation" hidden><input id="trainingAcknowledged" name="trainingAcknowledged" type="checkbox"><span>I confirm that I have completed the required training and will follow the equipment SOP.</span></label>
+        <div class="form-row"><label class="field-label">Start time<input name="start" type="time" value="09:00" required></label><label class="field-label">End time<input name="end" type="time" value="10:00" required></label></div>
+        <p class="form-hint">Requests are held while awaiting approval. Overlapping bookings and maintenance windows are not allowed.</p>
+        <div class="form-error" id="bookingError" role="alert"></div>
+        <div class="modal-actions"><button type="button" class="button button-quiet" data-close-modal>Cancel</button><button type="submit" class="button button-primary">Send request <span>→</span></button></div>
+      </form>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="profileModal" aria-hidden="true">
+    <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle">
+      <div class="modal-heading"><div><div class="eyebrow">LOCAL WORKSPACE</div><h2 id="profileModalTitle">Your profile</h2></div><button class="modal-close" data-close-modal aria-label="Close dialog">×</button></div>
+      <form id="profileForm">
+        <p class="form-hint profile-setup-hint">Your local profile labels your booking requests on this device.</p>
+        <label class="field-label">Your name<input id="profileName" name="name" type="text" maxlength="60" autocomplete="name" required></label>
+        <label class="field-label">Role label<input id="profileRole" name="role" type="text" maxlength="40" placeholder="Researcher" required></label>
+        <p class="form-hint">Stored in this browser and shown on future bookings. It is not a verified account; changing it does not rename existing bookings.</p>
+        <div class="form-error" id="profileError" role="alert"></div>
+        <div class="modal-actions"><button type="button" class="button button-quiet" data-close-modal>Cancel</button><button type="submit" class="button button-primary">Save profile</button></div>
+      </form>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="equipmentModal" aria-hidden="true">
+    <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="equipmentModalTitle">
+      <div class="modal-heading"><div><div class="eyebrow">EQUIPMENT CATALOGUE</div><h2 id="equipmentModalTitle">Add equipment</h2></div><button class="modal-close" data-close-modal aria-label="Close dialog">×</button></div>
+      <form id="equipmentForm">
+        <input name="id" type="hidden">
+        <label class="field-label">Equipment name<input name="name" type="text" maxlength="70" placeholder="e.g. Digital microscope" required></label>
+        <div class="form-row"><label class="field-label">Category<input name="category" type="text" maxlength="40" placeholder="e.g. Microscopy" required></label><label class="field-label">Model / details<input name="detail" type="text" maxlength="90" placeholder="Manufacturer and capabilities" required></label></div>
+        <label class="field-label">Lab location<input name="location" type="text" maxlength="70" placeholder="e.g. Imaging suite · B214" required></label>
+        <div class="form-row"><label class="field-label">Maximum session (hours)<input name="maxBookingHours" type="number" min="1" max="24" step="1" value="2" required></label><label class="field-label">Training required<select name="trainingRequired"><option value="false">No</option><option value="true">Yes</option></select></label></div>
+        <label class="field-label">Access notes / SOP reminders<textarea name="accessNotes" rows="3" maxlength="240" placeholder="Training, sample prep, PPE, cleanup, operator contact..." required></textarea></label>
+        <div class="form-error" id="equipmentError" role="alert"></div>
+        <div class="modal-actions"><button type="button" class="button button-quiet" data-close-modal>Cancel</button><button type="submit" class="button button-primary">Save equipment</button></div>
+      </form>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="maintenanceModal" aria-hidden="true">
+    <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="maintenanceModalTitle">
+      <div class="modal-heading"><div><div class="eyebrow">EQUIPMENT SERVICE</div><h2 id="maintenanceModalTitle">Block maintenance time</h2></div><button class="modal-close" data-close-modal aria-label="Close dialog">×</button></div>
+      <form id="maintenanceForm">
+        <label class="field-label">Equipment<select name="equipment" id="maintenanceEquipment" required></select></label>
+        <div class="form-row"><label class="field-label">Date<input name="date" id="maintenanceDate" type="date" required></label><label class="field-label">Reason<input name="reason" type="text" maxlength="100" placeholder="e.g. Annual calibration" required></label></div>
+        <div class="form-row"><label class="field-label">Start time<input name="start" type="time" value="09:00" required></label><label class="field-label">End time<input name="end" type="time" value="12:00" required></label></div>
+        <div class="form-error" id="maintenanceError" role="alert"></div>
+        <div class="modal-actions"><button type="button" class="button button-quiet" data-close-modal>Cancel</button><button type="submit" class="button button-primary">Schedule downtime <span>→</span></button></div>
+      </form>
+    </section>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+  <script src="app.js"></script>
+</body>
+</html>
